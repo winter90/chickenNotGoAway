@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Implementation-Title: UCanAccess
+Implementation-Version: 4.0.3
+Built-By: Gord
+Implementation-Vendor-Id: net.sf.ucanaccess
+Created-By: Apache Maven 3.3.9
+Build-Jdk: 1.8.0_152
+Implementation-URL: http://ucanaccess.sourceforge.net/site.html
+Implementation-Vendor: UCanAccess
+
