@@ -5,7 +5,9 @@
  */
 package chickengoaway;
 
+import java.text.SimpleDateFormat;
 import javax.swing.JFrame;
+import javax.swing.table.TableColumn;
 
 /**
  *
@@ -18,6 +20,11 @@ public class mainForm extends javax.swing.JFrame {
      */
     public mainForm() {
         initComponents();
+        // Setdate
+        SimpleDateFormat dFormat =  new SimpleDateFormat("dd-MM-yyyy");
+
+//        dateTimepicker.setDate();
+       
     }
 
     /**
@@ -32,7 +39,7 @@ public class mainForm extends javax.swing.JFrame {
         lbl_HeaderName = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        datimePicker = new org.jdesktop.swingx.JXDatePicker();
+        dateTimepicker = new org.jdesktop.swingx.JXDatePicker();
         lbl_doanhSo = new javax.swing.JLabel();
         btn_AddOrder = new javax.swing.JButton();
         btn_orderDetails = new javax.swing.JButton();
@@ -60,6 +67,8 @@ public class mainForm extends javax.swing.JFrame {
         jLabel3.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         jLabel3.setText("Doanh số:");
         jLabel3.setName("lbl_doanhthu"); // NOI18N
+
+        dateTimepicker.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
 
         lbl_doanhSo.setFont(new java.awt.Font("Times New Roman", 3, 18)); // NOI18N
         lbl_doanhSo.setText("0.00");
@@ -90,7 +99,7 @@ public class mainForm extends javax.swing.JFrame {
         jLabel4.setFont(new java.awt.Font("Times New Roman", 3, 18)); // NOI18N
         jLabel4.setText("Đơn gần đây:");
 
-        tbl_bills.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        tbl_bills.setFont(new java.awt.Font("Times New Roman", 0, 36)); // NOI18N
         tbl_bills.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null},
@@ -112,7 +121,7 @@ public class mainForm extends javax.swing.JFrame {
                 java.lang.String.class, java.lang.String.class, java.lang.Long.class, java.lang.Float.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, true
+                false, false, false, false, true, true
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -123,7 +132,22 @@ public class mainForm extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        tbl_bills.setRowHeight(19);
         jScrollPane1.setViewportView(tbl_bills);
+        if (tbl_bills.getColumnModel().getColumnCount() > 0) {
+            tbl_bills.getColumnModel().getColumn(0).setResizable(false);
+            tbl_bills.getColumnModel().getColumn(0).setPreferredWidth(10);
+            tbl_bills.getColumnModel().getColumn(1).setResizable(false);
+            tbl_bills.getColumnModel().getColumn(1).setPreferredWidth(100);
+            tbl_bills.getColumnModel().getColumn(2).setResizable(false);
+            tbl_bills.getColumnModel().getColumn(2).setPreferredWidth(20);
+            tbl_bills.getColumnModel().getColumn(3).setResizable(false);
+            tbl_bills.getColumnModel().getColumn(3).setPreferredWidth(20);
+            tbl_bills.getColumnModel().getColumn(4).setResizable(false);
+            tbl_bills.getColumnModel().getColumn(4).setPreferredWidth(20);
+            tbl_bills.getColumnModel().getColumn(5).setResizable(false);
+            tbl_bills.getColumnModel().getColumn(5).setPreferredWidth(20);
+        }
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -132,28 +156,31 @@ public class mainForm extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 597, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(183, 183, 183)
-                        .addComponent(lbl_HeaderName))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(82, 82, 82)
-                        .addComponent(jLabel2)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(datimePicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel3)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(lbl_doanhSo, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(29, 29, 29)
-                        .addComponent(btn_AddOrder, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(41, 41, 41)
-                        .addComponent(btn_orderDetails)
-                        .addGap(18, 18, 18)
-                        .addComponent(btn_check))
-                    .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(183, 183, 183)
+                                .addComponent(lbl_HeaderName))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(82, 82, 82)
+                                .addComponent(jLabel2)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addComponent(dateTimepicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(18, 18, 18)
+                                .addComponent(jLabel3)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(lbl_doanhSo, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(29, 29, 29)
+                                .addComponent(btn_AddOrder, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(41, 41, 41)
+                                .addComponent(btn_orderDetails)
+                                .addGap(18, 18, 18)
+                                .addComponent(btn_check))
+                            .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(0, 54, Short.MAX_VALUE)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -164,7 +191,7 @@ public class mainForm extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(jLabel3)
-                    .addComponent(datimePicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(dateTimepicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(lbl_doanhSo))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -174,8 +201,8 @@ public class mainForm extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 192, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(17, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(19, Short.MAX_VALUE))
         );
 
         pack();
@@ -232,7 +259,7 @@ public class mainForm extends javax.swing.JFrame {
     private javax.swing.JButton btn_AddOrder;
     private javax.swing.JButton btn_check;
     private javax.swing.JButton btn_orderDetails;
-    private org.jdesktop.swingx.JXDatePicker datimePicker;
+    private org.jdesktop.swingx.JXDatePicker dateTimepicker;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
