@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package gakloithoat;
+
 import java.sql.*;
 
 public class Gakloithoat {
@@ -21,8 +21,6 @@ public class Gakloithoat {
             {
                 System.out.print("Mã:\t" + rs.getString(1) + "\t");
                 System.out.println("Mã sản phẩm:\t" + rs.getString(2));
-                
-                
             }
         }catch(Exception ex){
             System.out.println(ex.getMessage());
