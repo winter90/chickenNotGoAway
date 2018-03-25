@@ -6,6 +6,8 @@
 package chickengoaway;
 
 import java.sql.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -36,16 +38,17 @@ public class helpper {
      * Create new Connection
      */
     public void createConnection(){
-        
+        System.out.println("Create connection");
         try{
             String dbURL = "jdbc:ucanaccess://" + databaseURI;
             //String dbURL = "jdbc:ucanaccess://dataFinial.accdb";
             Connection conn = DriverManager.getConnection(dbURL,"","");
             st = conn.createStatement();
+            System.out.println("Create connection ------> Done");
         }
         catch(SQLException ex){
             String strErr = ex.getMessage();
-            JOptionPane.showMessageDialog(null, strErr);
+            JOptionPane.showMessageDialog(null, "Error: " + strErr);
         } 
     }
     
@@ -56,6 +59,7 @@ public class helpper {
    public ResultSet queryData(String strQuerry){
         if(st == null)
             createConnection();
+            
         ResultSet rs = null;
         try{
            rs = st.executeQuery(strQuerry);
@@ -65,6 +69,16 @@ public class helpper {
             JOptionPane.showMessageDialog(null, strErr);
         }    
         return rs;
+   }
+   public void closeConnection(){
+       if(st!= null)
+        try {
+            System.out.println("closing connection");
+            st.close();
+       } catch (SQLException ex) {
+           Logger.getLogger(helpper.class.getName()).log(Level.SEVERE, null, ex);
+       }
+       
    }
     
 }

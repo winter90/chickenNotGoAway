@@ -5,9 +5,9 @@
  */
 package chickengoaway;
 
-import java.text.SimpleDateFormat;
-import javax.swing.JFrame;
-import javax.swing.table.TableColumn;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Date;
 
 /**
  *
@@ -18,13 +18,59 @@ public class mainForm extends javax.swing.JFrame {
     /**
      * Creates new form mainForm
      */
+    public void setNearlyOrder(){
+        //Get nearly orders
+        System.out.println("Start query");
+        ResultSet rs = ChickenGoAway._helpper.queryData("Select TOP 10 OrderID, Address, PhoneNumber, Fee, Ship, Status, Shipper from order");
+        System.out.println("Done query");
+        if (rs!=null){
+            try{
+                String orderID, Address, phoneNumber, Fee, Status, Shipper;
+                int row = 0;
+                while (rs.next()){
+                    //get data
+                   orderID = rs.getString("OrderID");
+                   Address = rs.getString("Address");
+                   phoneNumber = rs.getString("PhoneNumber");
+                   Fee = (Integer.valueOf(rs.getString("Fee")) + Integer.valueOf(rs.getString("Ship"))) + "";
+                   Status = rs.getString("Status");
+                   Shipper = rs.getString("Shipper");
+                   
+                   
+                    System.out.println(orderID + "\t|" + Address + "\t|" + phoneNumber + "\t|" + Fee + "\t|" + Status + "\t|" + Shipper);
+                   //push data to table
+                    tbl_bills.getModel().setValueAt(orderID, row , 0);
+                    tbl_bills.getModel().setValueAt(Address, row , 1);
+                    tbl_bills.getModel().setValueAt(phoneNumber, row , 2);
+                    tbl_bills.getModel().setValueAt(Fee, row , 3);
+                    tbl_bills.getModel().setValueAt(Status, row , 4);
+                    tbl_bills.getModel().setValueAt(Shipper, row , 5);
+//                    
+                    
+                    
+                    
+                    row++;
+
+               }
+            }
+            catch(SQLException ex){
+               System.out.println(ex.getMessage());
+            }
+        }
+        
+    }
+    
     public mainForm() {
         initComponents();
         // Setdate
-        SimpleDateFormat dFormat =  new SimpleDateFormat("dd-MM-yyyy");
+        Date date = new Date();
+        dateTimepicker.setDate(date);
+        setNearlyOrder();
+        
+        
+        
+        
 
-//        dateTimepicker.setDate();
-       
     }
 
     /**
@@ -69,6 +115,7 @@ public class mainForm extends javax.swing.JFrame {
         jLabel3.setName("lbl_doanhthu"); // NOI18N
 
         dateTimepicker.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        dateTimepicker.setFormats("dd - MM - YYYY");
 
         lbl_doanhSo.setFont(new java.awt.Font("Times New Roman", 3, 18)); // NOI18N
         lbl_doanhSo.setText("0.00");
@@ -99,7 +146,7 @@ public class mainForm extends javax.swing.JFrame {
         jLabel4.setFont(new java.awt.Font("Times New Roman", 3, 18)); // NOI18N
         jLabel4.setText("Đơn gần đây:");
 
-        tbl_bills.setFont(new java.awt.Font("Times New Roman", 0, 36)); // NOI18N
+        tbl_bills.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         tbl_bills.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null},
@@ -118,7 +165,7 @@ public class mainForm extends javax.swing.JFrame {
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.Long.class, java.lang.Float.class, java.lang.String.class, java.lang.String.class
+                java.lang.String.class, java.lang.String.class, java.lang.Long.class, java.lang.Long.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
                 false, false, false, false, true, true
@@ -137,10 +184,8 @@ public class mainForm extends javax.swing.JFrame {
         if (tbl_bills.getColumnModel().getColumnCount() > 0) {
             tbl_bills.getColumnModel().getColumn(0).setResizable(false);
             tbl_bills.getColumnModel().getColumn(0).setPreferredWidth(10);
-            tbl_bills.getColumnModel().getColumn(1).setResizable(false);
             tbl_bills.getColumnModel().getColumn(1).setPreferredWidth(100);
-            tbl_bills.getColumnModel().getColumn(2).setResizable(false);
-            tbl_bills.getColumnModel().getColumn(2).setPreferredWidth(20);
+            tbl_bills.getColumnModel().getColumn(2).setPreferredWidth(50);
             tbl_bills.getColumnModel().getColumn(3).setResizable(false);
             tbl_bills.getColumnModel().getColumn(3).setPreferredWidth(20);
             tbl_bills.getColumnModel().getColumn(4).setResizable(false);
@@ -171,15 +216,15 @@ public class mainForm extends javax.swing.JFrame {
                                 .addComponent(jLabel3)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(lbl_doanhSo, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(29, 29, 29)
                                 .addComponent(btn_AddOrder, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(41, 41, 41)
                                 .addComponent(btn_orderDetails)
-                                .addGap(18, 18, 18)
-                                .addComponent(btn_check))
-                            .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(0, 54, Short.MAX_VALUE)))
+                                .addGap(45, 45, 45)
+                                .addComponent(btn_check)))
+                        .addGap(0, 35, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -214,10 +259,7 @@ public class mainForm extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_addOrder
 
     private void btn_AddOrderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_AddOrderActionPerformed
-
         new form_order().setVisible(true);
-
-        // TODO add your handling code here:
     }//GEN-LAST:event_btn_AddOrderActionPerformed
 
     /**

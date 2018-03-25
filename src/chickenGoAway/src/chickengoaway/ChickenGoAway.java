@@ -5,6 +5,7 @@
  */
 package chickengoaway;
 
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -13,26 +14,21 @@ import java.sql.SQLException;
  * @author huy.vu
  */
 public class ChickenGoAway {
+    
+    public static helpper _helpper = new helpper();
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        // Test connect dataBase
-//        helpper helpper = new helpper();
-//         ResultSet rs = helpper.queryData("SELECT * FROM FOODS");
-//         try{
-//            while (rs.next())
-//               {
-//                   System.out.print("Mã:\t" + rs.getString(1) + "\t");
-//                   System.out.println("Mã sản phẩm:\t" + rs.getString(2));
-//               }
-//         }
-//         catch(SQLException ex){
-//            System.out.println(ex.getMessage());
-//        }
-
+        //Create connection
+        _helpper.createConnection();
+        
+        //Start Interface
         new mainForm().setVisible(true);
+        
+        //Close connection before end
+//        _helpper.closeConnection();
         
     }
     

@@ -5,6 +5,9 @@
  */
 package chickengoaway;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 /**
  *
  * @author huy.vu
@@ -20,6 +23,19 @@ public class form_selectFood extends javax.swing.JFrame {
     
     public form_selectFood() {
         initComponents();
+        
+        ResultSet rs = ChickenGoAway._helpper.queryData("SELECT * FROM FOODS");
+        try{
+            while (rs.next())
+               {
+                   System.out.print("Mã:\t" + rs.getString(1) + "\t");
+                   System.out.println("Mã sản phẩm:\t" + rs.getString(2));
+               }
+         }
+         catch(SQLException ex){
+            System.out.println(ex.getMessage());
+        }
+        
     }
 
     /**
@@ -43,8 +59,6 @@ public class form_selectFood extends javax.swing.JFrame {
         btn_food3 = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
         lbl_countFood3 = new javax.swing.JLabel();
-
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
         btn_food1.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         btn_food1.setText("Món 1");
@@ -168,7 +182,7 @@ public class form_selectFood extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btn_ok)
                     .addComponent(btn_cancel))
-                .addContainerGap(29, Short.MAX_VALUE))
+                .addContainerGap(28, Short.MAX_VALUE))
         );
 
         pack();
@@ -184,7 +198,7 @@ public class form_selectFood extends javax.swing.JFrame {
     private void btn_food2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_food2ActionPerformed
         // TODO add your handling code here:
          count2 = count2 + 1;
-        lbl_countFood2.setText(count1 + "");
+        lbl_countFood2.setText(count2 + "");
     }//GEN-LAST:event_btn_food2ActionPerformed
 
     private void btn_food3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_food3ActionPerformed
