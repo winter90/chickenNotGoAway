@@ -6,6 +6,7 @@
 package chickengoaway;
 
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -17,7 +18,7 @@ import javax.swing.JOptionPane;
 public class helpper {
     public String databaseURI = getConfig("dbURL") ;
     public Statement st = null;
-    
+    public Connection conn;
     
     /**
      * @param ConfigureName get data from configure
@@ -38,13 +39,13 @@ public class helpper {
      * Create new Connection
      */
     public void createConnection(){
-        System.out.println("Create connection");
+       
         try{
             String dbURL = "jdbc:ucanaccess://" + databaseURI;
             //String dbURL = "jdbc:ucanaccess://dataFinial.accdb";
-            Connection conn = DriverManager.getConnection(dbURL,"","");
+            conn = DriverManager.getConnection(dbURL,"","");
             st = conn.createStatement();
-            System.out.println("Create connection ------> Done");
+            
         }
         catch(SQLException ex){
             String strErr = ex.getMessage();
@@ -56,7 +57,7 @@ public class helpper {
      * @param strQuerry the query
      * @return rs as result set
      */
-   public ResultSet queryData(String strQuerry){
+   public ResultSet executeQuerry(String strQuerry){
         if(st == null)
             createConnection();
             
@@ -70,10 +71,50 @@ public class helpper {
         }    
         return rs;
    }
+   
+   /**
+    * Insert data to table order
+    * @param strQuerry
+    * @param date 
+    */
+   public void insertDataIntoOrder(String strQuerry, String date){
+       if(st == null)
+            createConnection();
+        try {
+            PreparedStatement pst = conn.prepareStatement(strQuerry);
+            pst.setDate(1, java.sql.Date.valueOf(date));
+            pst.execute();
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(helpper.class.getName()).log(Level.SEVERE, null, ex);
+        }
+   }
+   
+   
+   public void insertDataToOrrderDetails(ArrayList<String> strQuerrys){
+
+       if(st == null)
+            createConnection();
+       String querry;
+       try {
+           for (int i =0; i < strQuerrys.size(); i++){
+                querry = strQuerrys.get(i);
+                PreparedStatement pst = conn.prepareStatement(querry);
+                pst.execute();
+           }
+            
+        } catch (SQLException ex) {
+            Logger.getLogger(helpper.class.getName()).log(Level.SEVERE, null, ex);
+        }
+   }
+   
+   /**
+    * Close connection
+    */
    public void closeConnection(){
        if(st!= null)
         try {
-            System.out.println("closing connection");
+            
             st.close();
        } catch (SQLException ex) {
            Logger.getLogger(helpper.class.getName()).log(Level.SEVERE, null, ex);

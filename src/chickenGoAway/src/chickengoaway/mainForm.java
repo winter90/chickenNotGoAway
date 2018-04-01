@@ -7,7 +7,10 @@ package chickengoaway;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -15,14 +18,49 @@ import java.util.Date;
  */
 public class mainForm extends javax.swing.JFrame {
 
+   public mainForm() {
+       Date date = new Date(); 
+       initComponents();
+        // Setdate
+        dateTimepicker.setDate(date);
+        
+        //Push data to table
+        setNearlyOrder();
+    }
+   
     /**
-     * Creates new form mainForm
+     * SQL query Syntax: SELECT fee FROM table_name WHERE date = date;
+     * 
      */
-    public void setNearlyOrder(){
+     public void countPaymentbyDate() {
+         
+        Date jxDatetime = dateTimepicker.getDate();
+        if(jxDatetime!= null){
+            String newDate = new SimpleDateFormat("MM/dd/yyyy").format(jxDatetime);
+
+             try {
+                 int count = 0;
+                 ResultSet rs = ChickenGoAway._helpper.executeQuerry("SELECT Fee FROM [order] WHERE dateOder = #" + newDate + "#;");
+                 while (rs.next()){
+                     count = count + Integer.valueOf(rs.getString("Fee"));
+                 }
+                 // Show total orders
+                 lbl_doanhSo.setText(count + "");
+             } catch (SQLException ex) {
+                 Logger.getLogger(mainForm.class.getName()).log(Level.SEVERE, null, ex);
+             }
+        }
+        else
+             System.out.println("Null");
+       
+    }
+     
+    /**
+     * Query orders from database and push to table
+     */
+    private void setNearlyOrder(){
         //Get nearly orders
-        System.out.println("Start query");
-        ResultSet rs = ChickenGoAway._helpper.queryData("Select TOP 10 OrderID, Address, PhoneNumber, Fee, Ship, Status, Shipper from order");
-        System.out.println("Done query");
+        ResultSet rs = ChickenGoAway._helpper.executeQuerry("SELECT TOP 10 OrderID, Address, PhoneNumber, Fee, Ship, Status, Shipper FROM order ORDER BY OrderID DESC");
         if (rs!=null){
             try{
                 String orderID, Address, phoneNumber, Fee, Status, Shipper;
@@ -36,18 +74,13 @@ public class mainForm extends javax.swing.JFrame {
                    Status = rs.getString("Status");
                    Shipper = rs.getString("Shipper");
                    
-                   
-                    System.out.println(orderID + "\t|" + Address + "\t|" + phoneNumber + "\t|" + Fee + "\t|" + Status + "\t|" + Shipper);
                    //push data to table
                     tbl_bills.getModel().setValueAt(orderID, row , 0);
                     tbl_bills.getModel().setValueAt(Address, row , 1);
                     tbl_bills.getModel().setValueAt(phoneNumber, row , 2);
                     tbl_bills.getModel().setValueAt(Fee, row , 3);
                     tbl_bills.getModel().setValueAt(Status, row , 4);
-                    tbl_bills.getModel().setValueAt(Shipper, row , 5);
-//                    
-                    
-                    
+                    tbl_bills.getModel().setValueAt(Shipper, row , 5); 
                     
                     row++;
 
@@ -58,19 +91,6 @@ public class mainForm extends javax.swing.JFrame {
             }
         }
         
-    }
-    
-    public mainForm() {
-        initComponents();
-        // Setdate
-        Date date = new Date();
-        dateTimepicker.setDate(date);
-        setNearlyOrder();
-        
-        
-        
-        
-
     }
 
     /**
@@ -85,7 +105,6 @@ public class mainForm extends javax.swing.JFrame {
         lbl_HeaderName = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        dateTimepicker = new org.jdesktop.swingx.JXDatePicker();
         lbl_doanhSo = new javax.swing.JLabel();
         btn_AddOrder = new javax.swing.JButton();
         btn_orderDetails = new javax.swing.JButton();
@@ -93,10 +112,12 @@ public class mainForm extends javax.swing.JFrame {
         jLabel4 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         tbl_bills = new javax.swing.JTable();
+        dateTimepicker = new org.jdesktop.swingx.JXDatePicker();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         setForeground(java.awt.Color.black);
+        setLocation(new java.awt.Point(300, 200));
         setName("Frame_main"); // NOI18N
         setResizable(false);
 
@@ -113,9 +134,6 @@ public class mainForm extends javax.swing.JFrame {
         jLabel3.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         jLabel3.setText("Doanh số:");
         jLabel3.setName("lbl_doanhthu"); // NOI18N
-
-        dateTimepicker.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        dateTimepicker.setFormats("dd - MM - YYYY");
 
         lbl_doanhSo.setFont(new java.awt.Font("Times New Roman", 3, 18)); // NOI18N
         lbl_doanhSo.setText("0.00");
@@ -138,10 +156,20 @@ public class mainForm extends javax.swing.JFrame {
         btn_orderDetails.setBackground(new java.awt.Color(0, 102, 153));
         btn_orderDetails.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         btn_orderDetails.setText("Kiểm tra đơn hàng");
+        btn_orderDetails.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_orderDetailsActionPerformed(evt);
+            }
+        });
 
         btn_check.setBackground(new java.awt.Color(102, 102, 255));
         btn_check.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         btn_check.setText("Kiểm tra doanh thu");
+        btn_check.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_checkActionPerformed(evt);
+            }
+        });
 
         jLabel4.setFont(new java.awt.Font("Times New Roman", 3, 18)); // NOI18N
         jLabel4.setText("Đơn gần đây:");
@@ -194,6 +222,13 @@ public class mainForm extends javax.swing.JFrame {
             tbl_bills.getColumnModel().getColumn(5).setPreferredWidth(20);
         }
 
+        dateTimepicker.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        dateTimepicker.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                dateTimepickerPropertyChange(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -210,8 +245,8 @@ public class mainForm extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addGap(82, 82, 82)
                                 .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                                .addComponent(dateTimepicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(dateTimepicker, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
                                 .addComponent(jLabel3)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -236,9 +271,9 @@ public class mainForm extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
                     .addComponent(jLabel3)
-                    .addComponent(dateTimepicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(lbl_doanhSo))
-                .addGap(18, 18, 18)
+                    .addComponent(lbl_doanhSo)
+                    .addComponent(dateTimepicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(22, 22, 22)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btn_AddOrder)
                     .addComponent(btn_orderDetails)
@@ -247,7 +282,7 @@ public class mainForm extends javax.swing.JFrame {
                 .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(19, Short.MAX_VALUE))
+                .addContainerGap(15, Short.MAX_VALUE))
         );
 
         pack();
@@ -259,8 +294,23 @@ public class mainForm extends javax.swing.JFrame {
     }//GEN-LAST:event_btn_addOrder
 
     private void btn_AddOrderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_AddOrderActionPerformed
+        //Done
         new form_order().setVisible(true);
     }//GEN-LAST:event_btn_AddOrderActionPerformed
+
+    private void dateTimepickerPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_dateTimepickerPropertyChange
+        // Done
+        countPaymentbyDate();
+    }//GEN-LAST:event_dateTimepickerPropertyChange
+
+    private void btn_orderDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_orderDetailsActionPerformed
+        new form_checkBills().setVisible(true);
+    }//GEN-LAST:event_btn_orderDetailsActionPerformed
+
+    private void btn_checkActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_checkActionPerformed
+        // Implementing
+        new form_checkOrder().setVisible(true);
+    }//GEN-LAST:event_btn_checkActionPerformed
 
     /**
      * @param args the command line arguments
@@ -290,11 +340,7 @@ public class mainForm extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new mainForm().setVisible(true);
-            }
-        });
+       new mainForm().setVisible(true);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -310,4 +356,5 @@ public class mainForm extends javax.swing.JFrame {
     private javax.swing.JLabel lbl_doanhSo;
     private javax.swing.JTable tbl_bills;
     // End of variables declaration//GEN-END:variables
+
 }

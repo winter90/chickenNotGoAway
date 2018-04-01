@@ -5,21 +5,107 @@
  */
 package chickengoaway;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableModel;
 
 /**
  *
  * @author huy.vu
  */
 public class form_order extends javax.swing.JFrame {
+    
+    /**
+     * 
+     */
+    private void getFoods(){
+        //Query data
+        String str_querry = "Select * from foods"; //ID, Name, Prices
+        try {
+                
+                 int row = 0;
+                 ResultSet rs = ChickenGoAway._helpper.executeQuerry(str_querry);
+                 DefaultTableModel tableFoods = (DefaultTableModel)tbl_orderDetails.getModel();            
+                 while (rs.next()){
+                    tableFoods.setValueAt(row + 1, row , 0); // #
+                    tableFoods.setValueAt(rs.getString("Name"), row , 1); // Tên món ăn
+                    tableFoods.setValueAt(0, row , 2); // Số Lượng
+                    tableFoods.setValueAt(rs.getString("Prices"), row , 3); // Đơn giá
+                    tableFoods.setValueAt(0 , row , 4); // Thành tiền
+                    
+                    //Update dictionary
+                    dicFoods.put(rs.getString("Name"),rs.getString("ID"));
+                    row++;
 
+                 }
+
+             } catch (SQLException ex) {
+                 Logger.getLogger(mainForm.class.getName()).log(Level.SEVERE, null, ex);
+             }
+    }
+    
+     /**
+     * Update table format
+     */
+    private void updateTableOrders(){
+        String[] quantily = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
+        JComboBox comboCount = new JComboBox<String>(quantily);
+        comboCount.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {               
+                int total = Integer.valueOf(lbl_totalFee.getText());
+                int selectedRow = tbl_orderDetails.getSelectedRow();
+                int fee, count, after_price, before_price;               
+                TableModel tableFood = tbl_orderDetails.getModel();
+                
+                before_price = Integer.valueOf(tableFood.getValueAt(selectedRow, 4).toString());
+                total = total - before_price;
+                
+                fee = Integer.valueOf(tableFood.getValueAt(selectedRow, 3).toString());
+                count = Integer.valueOf(tableFood.getValueAt(selectedRow, 2).toString());
+                after_price = fee * count;
+                tableFood.setValueAt(after_price, selectedRow, 4);
+                
+                //Calculator the total price
+                total = total + after_price;
+                lbl_totalFee.setText(total + "");
+            }
+        });
+                
+                
+        TableColumn tblCol = tbl_orderDetails.getColumnModel().getColumn(2);
+        tblCol.setCellEditor(new DefaultCellEditor(comboCount));
+    }
+    
+    
     /**
      * Creates new form form_order
      */
     public form_order() {
+        
         initComponents();
+        
+        getFoods();
+        
+        updateTableOrders();
     }
-
+    
+   
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -40,24 +126,24 @@ public class form_order extends javax.swing.JFrame {
         txt_numberPhone = new javax.swing.JTextField();
         txt_timeDeliverli = new javax.swing.JTextField();
         txt_shipFee = new javax.swing.JTextField();
-        btn_selectFoods = new javax.swing.JButton();
+        txt_shipper = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         tbl_orderDetails = new javax.swing.JTable();
         btn_OK = new javax.swing.JButton();
         btn_calcel = new javax.swing.JButton();
         lbl_total = new javax.swing.JLabel();
         lbl_totalFee = new javax.swing.JLabel();
-        jLabel1 = new javax.swing.JLabel();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        jTextArea2 = new javax.swing.JTextArea();
+        lbl_shipFee1 = new javax.swing.JLabel();
 
         jTextArea1.setColumns(20);
         jTextArea1.setRows(5);
         jScrollPane2.setViewportView(jTextArea1);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        setLocation(new java.awt.Point(500, 300));
+        setResizable(false);
 
-        lbl_header.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        lbl_header.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
         lbl_header.setText("THÊM ĐƠN HÀNG");
 
         lbl_address.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
@@ -67,10 +153,10 @@ public class form_order extends javax.swing.JFrame {
         lbl_phoneNumber.setText("Số điện thoại :");
 
         lbl_timedeli.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        lbl_timedeli.setText("Thời gian giao");
+        lbl_timedeli.setText("Thời gian giao:");
 
         lbl_shipFee.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        lbl_shipFee.setText("Phí ship:");
+        lbl_shipFee.setText("Shipper:");
 
         txt_Address.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         txt_Address.addActionListener(new java.awt.event.ActionListener() {
@@ -79,6 +165,7 @@ public class form_order extends javax.swing.JFrame {
             }
         });
 
+        txt_numberPhone.setColumns(3);
         txt_numberPhone.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         txt_numberPhone.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -94,23 +181,27 @@ public class form_order extends javax.swing.JFrame {
         });
 
         txt_shipFee.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-
-        btn_selectFoods.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        btn_selectFoods.setText("Chọn món");
-        btn_selectFoods.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                btn_selectFoodsMouseClicked(evt);
+        txt_shipFee.setText("0");
+        txt_shipFee.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                txt_shipFeeFocusGained(evt);
+            }
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                txt_shipFeeFocusLost(evt);
             }
         });
-        btn_selectFoods.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btn_selectFoodsActionPerformed(evt);
+
+        txt_shipper.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        txt_shipper.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusLost(java.awt.event.FocusEvent evt) {
+                txt_shipperFocusLost(evt);
             }
         });
 
         tbl_orderDetails.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         tbl_orderDetails.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
+                {null, null, null, null, null},
                 {null, null, null, null, null},
                 {null, null, null, null, null},
                 {null, null, null, null, null},
@@ -121,10 +212,10 @@ public class form_order extends javax.swing.JFrame {
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Object.class, java.lang.String.class, java.lang.Integer.class, java.lang.Float.class, java.lang.Float.class
+                java.lang.Integer.class, java.lang.String.class, java.lang.Integer.class, java.lang.String.class, java.lang.String.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, true, false, false
+                false, true, true, true, true
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -135,13 +226,19 @@ public class form_order extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
+        tbl_orderDetails.setRowHeight(22);
         jScrollPane1.setViewportView(tbl_orderDetails);
         if (tbl_orderDetails.getColumnModel().getColumnCount() > 0) {
             tbl_orderDetails.getColumnModel().getColumn(0).setResizable(false);
+            tbl_orderDetails.getColumnModel().getColumn(0).setPreferredWidth(10);
             tbl_orderDetails.getColumnModel().getColumn(1).setResizable(false);
+            tbl_orderDetails.getColumnModel().getColumn(1).setPreferredWidth(250);
             tbl_orderDetails.getColumnModel().getColumn(2).setResizable(false);
+            tbl_orderDetails.getColumnModel().getColumn(2).setPreferredWidth(20);
             tbl_orderDetails.getColumnModel().getColumn(3).setResizable(false);
+            tbl_orderDetails.getColumnModel().getColumn(3).setPreferredWidth(50);
             tbl_orderDetails.getColumnModel().getColumn(4).setResizable(false);
+            tbl_orderDetails.getColumnModel().getColumn(4).setPreferredWidth(50);
         }
 
         btn_OK.setBackground(new java.awt.Color(0, 204, 102));
@@ -163,112 +260,99 @@ public class form_order extends javax.swing.JFrame {
         });
 
         lbl_total.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
-        lbl_total.setText("Tổng cộng");
+        lbl_total.setText("Tổng cộng:");
 
         lbl_totalFee.setFont(new java.awt.Font("Times New Roman", 1, 18)); // NOI18N
-        lbl_totalFee.setText("0.00");
+        lbl_totalFee.setText("0");
 
-        jLabel1.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
-        jLabel1.setText("Ghi chú");
-
-        jTextArea2.setColumns(20);
-        jTextArea2.setRows(5);
-        jScrollPane3.setViewportView(jTextArea2);
+        lbl_shipFee1.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        lbl_shipFee1.setText("Phí ship:");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(341, 341, 341)
-                        .addComponent(lbl_total)
-                        .addGap(31, 31, 31)
-                        .addComponent(lbl_totalFee, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(btn_selectFoods, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGap(34, 34, 34)
-                        .addComponent(lbl_shipFee)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txt_shipFee, javax.swing.GroupLayout.PREFERRED_SIZE, 108, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jLabel1)
-                        .addGap(27, 27, 27)
-                        .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(3, 3, 3)))
-                .addGap(24, 24, 24))
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap(59, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(lbl_address)
-                        .addGap(18, 18, 18)
-                        .addComponent(txt_Address))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(223, 223, 223)
-                        .addComponent(lbl_header))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(lbl_phoneNumber)
-                        .addGap(43, 43, 43)
-                        .addComponent(txt_numberPhone, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(55, 55, 55)
-                        .addComponent(lbl_timedeli)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(txt_timeDeliverli, javax.swing.GroupLayout.PREFERRED_SIZE, 74, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(24, 24, 24))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(102, 102, 102)
+                .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(btn_OK)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addGap(179, 179, 179)
                 .addComponent(btn_calcel, javax.swing.GroupLayout.PREFERRED_SIZE, 132, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(85, 85, 85))
+                .addGap(118, 118, 118))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(lbl_header)
+                .addGap(186, 186, 186))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(lbl_shipFee1, javax.swing.GroupLayout.PREFERRED_SIZE, 72, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(lbl_total)
+                                .addGap(37, 37, 37)
+                                .addComponent(lbl_totalFee, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(lbl_address)
+                                    .addComponent(lbl_phoneNumber))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                            .addComponent(txt_Address, javax.swing.GroupLayout.PREFERRED_SIZE, 438, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                            .addGroup(layout.createSequentialGroup()
+                                                .addComponent(txt_shipFee, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                .addGap(101, 101, 101)
+                                                .addComponent(txt_shipper, javax.swing.GroupLayout.PREFERRED_SIZE, 121, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                        .addGap(0, 0, Short.MAX_VALUE))
+                                    .addGroup(layout.createSequentialGroup()
+                                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                            .addComponent(lbl_shipFee)
+                                            .addComponent(txt_numberPhone, javax.swing.GroupLayout.PREFERRED_SIZE, 188, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGap(18, 18, 18)
+                                        .addComponent(lbl_timedeli)
+                                        .addGap(18, 18, 18)
+                                        .addComponent(txt_timeDeliverli))))
+                            .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING))
+                        .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(lbl_header)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(14, 14, 14)
-                        .addComponent(lbl_address))
-                    .addGroup(layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txt_Address, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(txt_numberPhone, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(lbl_phoneNumber)
-                        .addComponent(lbl_timedeli)
-                        .addComponent(txt_timeDeliverli, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(36, 36, 36)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(btn_selectFoods)
-                            .addComponent(lbl_shipFee))
-                        .addGap(3, 3, 3))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 55, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                .addComponent(txt_shipFee, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jLabel1)))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 105, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(lbl_totalFee, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(lbl_total))
-                .addGap(26, 26, 26)
+                    .addComponent(txt_Address, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lbl_address))
+                .addGap(11, 11, 11)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txt_numberPhone, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(lbl_phoneNumber)
+                    .addComponent(lbl_timedeli)
+                    .addComponent(txt_timeDeliverli, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(11, 11, 11)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(lbl_shipFee1)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(lbl_shipFee)
+                        .addComponent(txt_shipper, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txt_shipFee, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(lbl_total)
+                    .addComponent(lbl_totalFee, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(15, 15, 15)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btn_OK, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(btn_calcel, javax.swing.GroupLayout.PREFERRED_SIZE, 27, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(26, 26, 26))
+                .addGap(24, 24, 24))
         );
 
         pack();
@@ -277,10 +361,6 @@ public class form_order extends javax.swing.JFrame {
     private void txt_AddressActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_AddressActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txt_AddressActionPerformed
-
-    private void btn_selectFoodsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_selectFoodsActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btn_selectFoodsActionPerformed
 
     private void txt_numberPhoneActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txt_numberPhoneActionPerformed
         // TODO add your handling code here:
@@ -291,8 +371,76 @@ public class form_order extends javax.swing.JFrame {
     }//GEN-LAST:event_txt_timeDeliverliActionPerformed
 
     private void btn_OKActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_OKActionPerformed
-        // TODO add your handling code here:
-        System.out.println("Đồng ý");
+        
+        String orderID, dateOrder, address, phoneNumber, timeDeliver, fee, ship, shipper;
+        String querry;
+        String tempData = "";
+        int countOrder = 0;
+        
+        //Collect data for table order
+        dateOrder   = (new SimpleDateFormat("yyyy-MM-dd").format(new Date())).toString();
+        address     = txt_Address.getText();
+        phoneNumber = txt_numberPhone.getText();
+        timeDeliver = txt_timeDeliverli.getText();
+        ship        = txt_shipFee.getText();
+        fee         = (Integer.valueOf(lbl_totalFee.getText()) - Integer.valueOf(ship)) + "";
+        shipper     = txt_shipper.getText();
+        orderID     = (new SimpleDateFormat("yyMMdd").format(new Date())).toString();
+        
+        ResultSet rs = ChickenGoAway._helpper.executeQuerry("Select TOP 1 OrderID from order where dateOder = #" + dateOrder + "# ORDER BY OrderID DESC");
+        try {
+            while(rs.next())
+                tempData = rs.getString("OrderID"); //example: 17031701
+             
+             if(tempData!="")
+                countOrder = Integer.valueOf(tempData.substring(6, tempData.length()));   
+             }
+        catch (SQLException ex) {
+            Logger.getLogger(form_order.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        countOrder++;
+        
+        if(countOrder <10)
+            orderID = orderID + "0" + countOrder;
+        else
+            orderID = orderID + countOrder;
+
+        querry = "INSERT INTO [order] ( OrderID, dateOder, Address, PhoneNumber, timeDelivery, Fee, Ship, Shipper ) "
+                + "VALUES (" + orderID + ", ? ,  '"+ address + "', '" + phoneNumber + "', '" + timeDeliver + "', "+ fee + ", " + ship + ", '" + shipper + "');";
+
+        //Get data for order details
+        String food, quantities;
+        int rows =  tbl_orderDetails.getRowCount();
+        ArrayList<String> strQuerrys = new ArrayList<>();
+       
+        DefaultTableModel tableFoods = (DefaultTableModel)tbl_orderDetails.getModel();
+       
+        for(int row = 0; row < rows-1; row++){
+            
+            quantities = tableFoods.getValueAt(row, 2).toString();
+            if(quantities==null )
+                break;
+            if(Integer.valueOf(quantities) > 0){
+                food = tableFoods.getValueAt(row, 1).toString();
+                strQuerrys.add("INSERT INTO OrderDetails ( orderId, foods, count) VALUES (" + orderID + ", '"+ dicFoods.get(food) + "', " + quantities + ");");
+                System.out.println(row);
+            }
+            
+        }
+ 
+        //confirm
+         String strMess = "Thêm đơn hàng với ID: \t" + orderID + "\n Tổng giá trị:\t" + (ship + fee);
+         JOptionPane.showMessageDialog(null, strMess);
+
+        //push data to database
+        ChickenGoAway._helpper.insertDataIntoOrder(querry, dateOrder);
+        ChickenGoAway._helpper.insertDataToOrrderDetails(strQuerrys);
+        
+        
+        
+        this.dispose();
+        
     }//GEN-LAST:event_btn_OKActionPerformed
 
     private void btn_calcelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_calcelActionPerformed
@@ -305,12 +453,23 @@ public class form_order extends javax.swing.JFrame {
         
     }//GEN-LAST:event_btn_calcelActionPerformed
 
-    private void btn_selectFoodsMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btn_selectFoodsMouseClicked
-
+    private void txt_shipperFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txt_shipperFocusLost
         // TODO add your handling code here:
-        new form_selectFood().setVisible(true);
-    }//GEN-LAST:event_btn_selectFoodsMouseClicked
+    }//GEN-LAST:event_txt_shipperFocusLost
 
+    private void txt_shipFeeFocusLost(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txt_shipFeeFocusLost
+        int ship, total;
+        total = Integer.valueOf(lbl_totalFee.getText());
+        ship = Integer.valueOf(txt_shipFee.getText());
+        total = (total + ship) - currentShipFee;
+        lbl_totalFee.setText(total + "");
+    }//GEN-LAST:event_txt_shipFeeFocusLost
+    
+    private void txt_shipFeeFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_txt_shipFeeFocusGained
+        // TODO add your handling code here:
+       currentShipFee = Integer.valueOf(txt_shipFee.getText());
+    }//GEN-LAST:event_txt_shipFeeFocusGained
+    
     /**
      * @param args the command line arguments
      */
@@ -349,17 +508,14 @@ public class form_order extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_OK;
     private javax.swing.JButton btn_calcel;
-    private javax.swing.JButton btn_selectFoods;
-    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JTextArea jTextArea1;
-    private javax.swing.JTextArea jTextArea2;
     private javax.swing.JLabel lbl_address;
     private javax.swing.JLabel lbl_header;
     private javax.swing.JLabel lbl_phoneNumber;
     private javax.swing.JLabel lbl_shipFee;
+    private javax.swing.JLabel lbl_shipFee1;
     private javax.swing.JLabel lbl_timedeli;
     private javax.swing.JLabel lbl_total;
     private javax.swing.JLabel lbl_totalFee;
@@ -367,6 +523,13 @@ public class form_order extends javax.swing.JFrame {
     private javax.swing.JTextField txt_Address;
     private javax.swing.JTextField txt_numberPhone;
     private javax.swing.JTextField txt_shipFee;
+    private javax.swing.JTextField txt_shipper;
     private javax.swing.JTextField txt_timeDeliverli;
     // End of variables declaration//GEN-END:variables
+    
+    //my global variable
+    private int currentShipFee = 0;
+    private  Map<String, String> dicFoods = new HashMap<String, String>();  
+    
+    
 }

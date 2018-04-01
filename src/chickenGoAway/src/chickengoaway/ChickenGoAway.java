@@ -5,10 +5,6 @@
  */
 package chickengoaway;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
 /**
  *
  * @author huy.vu
@@ -24,11 +20,8 @@ public class ChickenGoAway {
         //Create connection
         _helpper.createConnection();
         
-        //Start Interface
+        //Start Interface: main form
         new mainForm().setVisible(true);
-        
-        //Close connection before end
-//        _helpper.closeConnection();
         
     }
     
