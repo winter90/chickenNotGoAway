@@ -54,7 +54,7 @@ public class form_order extends javax.swing.JFrame {
                  }
 
              } catch (SQLException ex) {
-                 Logger.getLogger(mainForm.class.getName()).log(Level.SEVERE, null, ex);
+                 Logger.getLogger(form_main.class.getName()).log(Level.SEVERE, null, ex);
              }
     }
     
@@ -62,7 +62,7 @@ public class form_order extends javax.swing.JFrame {
      * Update table format
      */
     private void updateTableOrders(){
-        String[] quantily = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
+        String[] quantily = {"0", "1", "2", "3", "4"};
         JComboBox comboCount = new JComboBox<String>(quantily);
         comboCount.addActionListener(new ActionListener() {
             @Override
@@ -98,6 +98,17 @@ public class form_order extends javax.swing.JFrame {
     public form_order() {
         
         initComponents();
+        
+        getFoods();
+        
+        updateTableOrders();
+    }
+    
+    public form_order(String orderID) {
+        
+        initComponents();
+        currentOrderID = orderID;
+        lbl_header.setText("Chỉnh sửa đơn hàng" + currentOrderID);
         
         getFoods();
         
@@ -385,29 +396,36 @@ public class form_order extends javax.swing.JFrame {
         ship        = txt_shipFee.getText();
         fee         = (Integer.valueOf(lbl_totalFee.getText()) - Integer.valueOf(ship)) + "";
         shipper     = txt_shipper.getText();
-        orderID     = (new SimpleDateFormat("yyMMdd").format(new Date())).toString();
+        //if new: currentOrderID == "";
+        if(currentOrderID.equals("")){
+            orderID     = (new SimpleDateFormat("yyMMdd").format(new Date()));
+            ResultSet rs = ChickenGoAway._helpper.executeQuerry("Select TOP 1 OrderID from order where dateOder = #" + dateOrder + "# ORDER BY OrderID DESC");
+            try {
+                while(rs.next())
+                    tempData = rs.getString("OrderID"); //example: 17031701
+
+                 if(tempData!="")
+                    countOrder = Integer.valueOf(tempData.substring(6, tempData.length()));   
+                 }
+            catch (SQLException ex) {
+                Logger.getLogger(form_order.class.getName()).log(Level.SEVERE, null, ex);
+            }
         
-        ResultSet rs = ChickenGoAway._helpper.executeQuerry("Select TOP 1 OrderID from order where dateOder = #" + dateOrder + "# ORDER BY OrderID DESC");
-        try {
-            while(rs.next())
-                tempData = rs.getString("OrderID"); //example: 17031701
-             
-             if(tempData!="")
-                countOrder = Integer.valueOf(tempData.substring(6, tempData.length()));   
-             }
-        catch (SQLException ex) {
-            Logger.getLogger(form_order.class.getName()).log(Level.SEVERE, null, ex);
+            countOrder++;
+
+            if(countOrder <10)
+                orderID = orderID + "0" + countOrder;
+            else
+                orderID = orderID + countOrder;
+            querry = "INSERT INTO [order] ( OrderID, dateOder, Address, PhoneNumber, timeDelivery, Fee, Ship, Shipper ) "
+                + "VALUES (" + orderID + ", ? ,  '"+ address + "', '" + phoneNumber + "', '" 
+                    + timeDeliver + "', "+ fee + ", " + ship + ", '" + shipper + "');";
+           }
+        else{
+            querry = "";
+            orderID = currentOrderID;
         }
         
-        countOrder++;
-        
-        if(countOrder <10)
-            orderID = orderID + "0" + countOrder;
-        else
-            orderID = orderID + countOrder;
-
-        querry = "INSERT INTO [order] ( OrderID, dateOder, Address, PhoneNumber, timeDelivery, Fee, Ship, Shipper ) "
-                + "VALUES (" + orderID + ", ? ,  '"+ address + "', '" + phoneNumber + "', '" + timeDeliver + "', "+ fee + ", " + ship + ", '" + shipper + "');";
 
         //Get data for order details
         String food, quantities;
@@ -423,22 +441,19 @@ public class form_order extends javax.swing.JFrame {
                 break;
             if(Integer.valueOf(quantities) > 0){
                 food = tableFoods.getValueAt(row, 1).toString();
-                strQuerrys.add("INSERT INTO OrderDetails ( orderId, foods, count) VALUES (" + orderID + ", '"+ dicFoods.get(food) + "', " + quantities + ");");
+                strQuerrys.add("INSERT INTO OrderDetails ( orderId, foods, count) VALUES (" + orderID 
+                        + ", '"+ dicFoods.get(food) + "', " + quantities + ");");
                 System.out.println(row);
             }
-            
         }
  
-        //confirm
-         String strMess = "Thêm đơn hàng với ID: \t" + orderID + "\n Tổng giá trị:\t" + (ship + fee);
+        // show information
+         String strMess = "Thêm đơn hàng với ID: " + orderID + "\n Tổng giá trị:              " + lbl_totalFee.getText();
          JOptionPane.showMessageDialog(null, strMess);
 
         //push data to database
         ChickenGoAway._helpper.insertDataIntoOrder(querry, dateOrder);
         ChickenGoAway._helpper.insertDataToOrrderDetails(strQuerrys);
-        
-        
-        
         this.dispose();
         
     }//GEN-LAST:event_btn_OKActionPerformed
@@ -529,7 +544,8 @@ public class form_order extends javax.swing.JFrame {
     
     //my global variable
     private int currentShipFee = 0;
-    private  Map<String, String> dicFoods = new HashMap<String, String>();  
+    private  Map<String, String> dicFoods = new HashMap<String, String>(); 
+    private String currentOrderID = "";
     
     
 }

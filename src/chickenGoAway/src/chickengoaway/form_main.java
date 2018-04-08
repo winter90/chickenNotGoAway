@@ -11,16 +11,23 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JComboBox;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableColumn;
 
 /**
  *
  * @author huy.vu
  */
-public class mainForm extends javax.swing.JFrame {
+public class form_main extends javax.swing.JFrame {
 
-   public mainForm() {
+   public form_main() {
        Date date = new Date(); 
        initComponents();
+       updateTableFormat();
         // Setdate
         dateTimepicker.setDate(date);
         
@@ -45,13 +52,13 @@ public class mainForm extends javax.swing.JFrame {
                      count = count + Integer.valueOf(rs.getString("Fee"));
                  }
                  // Show total orders
-                 lbl_doanhSo.setText(count + "");
+                 lbl_doanhSo.setText(String.format("%,d", count));
              } catch (SQLException ex) {
-                 Logger.getLogger(mainForm.class.getName()).log(Level.SEVERE, null, ex);
+                 Logger.getLogger(form_main.class.getName()).log(Level.SEVERE, null, ex);
              }
         }
         else
-             System.out.println("Null");
+             System.out.println("New one... Start app at the first time");
        
     }
      
@@ -113,6 +120,10 @@ public class mainForm extends javax.swing.JFrame {
         jScrollPane1 = new javax.swing.JScrollPane();
         tbl_bills = new javax.swing.JTable();
         dateTimepicker = new org.jdesktop.swingx.JXDatePicker();
+        btn_detailOrder = new javax.swing.JButton();
+        btn_updateOrder = new javax.swing.JButton();
+        btn_close = new javax.swing.JButton();
+        btn_print = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
@@ -121,7 +132,7 @@ public class mainForm extends javax.swing.JFrame {
         setName("Frame_main"); // NOI18N
         setResizable(false);
 
-        lbl_HeaderName.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        lbl_HeaderName.setFont(new java.awt.Font("Times New Roman", 1, 24)); // NOI18N
         lbl_HeaderName.setText("ĐẶT HÀNG GÀ KHÔNG LỐI THOÁT");
         lbl_HeaderName.setToolTipText("");
         lbl_HeaderName.setName("lbl_appName"); // NOI18N
@@ -131,11 +142,11 @@ public class mainForm extends javax.swing.JFrame {
         jLabel2.setToolTipText("");
         jLabel2.setName("lbl_doanhThuNgay"); // NOI18N
 
-        jLabel3.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        jLabel3.setFont(new java.awt.Font("Times New Roman", 0, 20)); // NOI18N
         jLabel3.setText("Doanh số:");
         jLabel3.setName("lbl_doanhthu"); // NOI18N
 
-        lbl_doanhSo.setFont(new java.awt.Font("Times New Roman", 3, 18)); // NOI18N
+        lbl_doanhSo.setFont(new java.awt.Font("Times New Roman", 3, 20)); // NOI18N
         lbl_doanhSo.setText("0.00");
 
         btn_AddOrder.setBackground(new java.awt.Color(0, 255, 51));
@@ -153,7 +164,7 @@ public class mainForm extends javax.swing.JFrame {
             }
         });
 
-        btn_orderDetails.setBackground(new java.awt.Color(0, 102, 153));
+        btn_orderDetails.setBackground(new java.awt.Color(153, 153, 255));
         btn_orderDetails.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         btn_orderDetails.setText("Kiểm tra đơn hàng");
         btn_orderDetails.addActionListener(new java.awt.event.ActionListener() {
@@ -162,7 +173,7 @@ public class mainForm extends javax.swing.JFrame {
             }
         });
 
-        btn_check.setBackground(new java.awt.Color(102, 102, 255));
+        btn_check.setBackground(new java.awt.Color(204, 204, 255));
         btn_check.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         btn_check.setText("Kiểm tra doanh thu");
         btn_check.addActionListener(new java.awt.event.ActionListener() {
@@ -212,7 +223,7 @@ public class mainForm extends javax.swing.JFrame {
         if (tbl_bills.getColumnModel().getColumnCount() > 0) {
             tbl_bills.getColumnModel().getColumn(0).setResizable(false);
             tbl_bills.getColumnModel().getColumn(0).setPreferredWidth(10);
-            tbl_bills.getColumnModel().getColumn(1).setPreferredWidth(100);
+            tbl_bills.getColumnModel().getColumn(1).setPreferredWidth(200);
             tbl_bills.getColumnModel().getColumn(2).setPreferredWidth(50);
             tbl_bills.getColumnModel().getColumn(3).setResizable(false);
             tbl_bills.getColumnModel().getColumn(3).setPreferredWidth(20);
@@ -229,38 +240,84 @@ public class mainForm extends javax.swing.JFrame {
             }
         });
 
+        btn_detailOrder.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        btn_detailOrder.setText("Chi tiết");
+        btn_detailOrder.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_detailOrderActionPerformed(evt);
+            }
+        });
+
+        btn_updateOrder.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        btn_updateOrder.setText("Cập nhật");
+        btn_updateOrder.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_updateOrderActionPerformed(evt);
+            }
+        });
+
+        btn_close.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        btn_close.setText("Đóng");
+        btn_close.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_closeActionPerformed(evt);
+            }
+        });
+
+        btn_print.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
+        btn_print.setText("In");
+        btn_print.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btn_printActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(183, 183, 183)
-                                .addComponent(lbl_HeaderName))
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(82, 82, 82)
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(dateTimepicker, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(18, 18, 18)
-                                .addComponent(jLabel3)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(lbl_doanhSo, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(29, 29, 29)
-                                .addComponent(btn_AddOrder, javax.swing.GroupLayout.PREFERRED_SIZE, 117, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addGap(41, 41, 41)
-                                .addComponent(btn_orderDetails)
-                                .addGap(45, 45, 45)
-                                .addComponent(btn_check)))
-                        .addGap(0, 35, Short.MAX_VALUE)))
+                        .addGap(40, 40, 40)
+                        .addComponent(btn_AddOrder, javax.swing.GroupLayout.PREFERRED_SIZE, 160, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(67, 67, 67)
+                        .addComponent(btn_orderDetails, javax.swing.GroupLayout.PREFERRED_SIZE, 180, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btn_check))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 133, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addGap(40, 40, 40))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(100, 100, 100)
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(dateTimepicker, javax.swing.GroupLayout.PREFERRED_SIZE, 186, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(18, 18, 18)
+                .addComponent(jLabel3)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(lbl_doanhSo, javax.swing.GroupLayout.PREFERRED_SIZE, 92, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane1)
                 .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(140, Short.MAX_VALUE)
+                .addComponent(lbl_HeaderName, javax.swing.GroupLayout.PREFERRED_SIZE, 448, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(140, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(150, 150, 150)
+                .addComponent(btn_detailOrder, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btn_updateOrder, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btn_print, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(btn_close, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -268,21 +325,32 @@ public class mainForm extends javax.swing.JFrame {
                 .addContainerGap()
                 .addComponent(lbl_HeaderName)
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel3)
-                    .addComponent(lbl_doanhSo)
-                    .addComponent(dateTimepicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(22, 22, 22)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btn_AddOrder)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addComponent(jLabel2)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel3)
+                            .addComponent(lbl_doanhSo)))
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(dateTimepicker, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(2, 2, 2)))
+                .addGap(20, 20, 20)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btn_orderDetails)
-                    .addComponent(btn_check))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(btn_AddOrder)
+                        .addComponent(btn_check)))
                 .addGap(18, 18, 18)
                 .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 224, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(15, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btn_detailOrder)
+                    .addComponent(btn_updateOrder)
+                    .addComponent(btn_print)
+                    .addComponent(btn_close))
+                .addContainerGap(20, Short.MAX_VALUE))
         );
 
         pack();
@@ -312,6 +380,99 @@ public class mainForm extends javax.swing.JFrame {
         new form_checkOrder().setVisible(true);
     }//GEN-LAST:event_btn_checkActionPerformed
 
+    private void btn_closeActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_closeActionPerformed
+        // TODO add your handling code here:
+        int dialogButton = JOptionPane.YES_NO_OPTION;
+        int intResut = JOptionPane.showConfirmDialog (null, "Bạn có muốn đóng chương trình quản lý này ?","Warning",dialogButton);
+        if(intResut == JOptionPane.YES_OPTION){
+            this.dispose();       
+        }
+    }//GEN-LAST:event_btn_closeActionPerformed
+
+    private void btn_updateOrderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_updateOrderActionPerformed
+        // TODO add your handling code here:
+        int selectedRow = -1;
+        try{
+            selectedRow = tbl_bills.getSelectedRow();
+        }
+        catch (Exception e){
+            
+            System.out.println(e.toString());
+        }
+        if(selectedRow >= 0){
+            String querry, orderID, status, shipper;
+            DefaultTableModel tableBill = (DefaultTableModel)tbl_bills.getModel();
+            orderID = tableBill.getValueAt(selectedRow, 0).toString();
+
+            System.out.println(orderID);
+            status = tableBill.getValueAt(selectedRow, 4).toString();
+            shipper = tableBill.getValueAt(selectedRow, 5).toString();
+
+            //UPDATE MyTable SET MyField='New Value' WHERE MyField2 LIKE 'Condition'");
+            querry = "UPDATE order SET Shipper='"+shipper+"', Status='"+ status + "' WHERE OrderID LIKE '"+ orderID + "'" ;
+            ChickenGoAway._helpper.executeUpdateData(querry);
+
+            setNearlyOrder();
+        }
+        else{
+            String strMess = "Vui lòng chọn đơn cần sửa";
+            JOptionPane.showMessageDialog(null, strMess);
+            
+        }
+    }//GEN-LAST:event_btn_updateOrderActionPerformed
+
+    private void btn_printActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_printActionPerformed
+        int selectedRow = -1;
+        try{
+            selectedRow = tbl_bills.getSelectedRow();
+        }
+        catch (Exception e){ 
+            System.out.println(e.toString());
+        }
+        if(selectedRow >= 0){
+            String orderID;
+            DefaultTableModel tableBill = (DefaultTableModel)tbl_bills.getModel();
+            orderID = tableBill.getValueAt(selectedRow, 0).toString();   
+            
+            JFrame print = new form_print(orderID);
+            print.setVisible(true);
+        }
+        else{
+            String strMess = "Vui lòng chọn đơn cần sửa";
+            JOptionPane.showMessageDialog(null, strMess);
+            
+        }   
+        
+        
+        
+        
+    }//GEN-LAST:event_btn_printActionPerformed
+
+    private void btn_detailOrderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_detailOrderActionPerformed
+        int selectedRow = -1;
+        try{
+            selectedRow = tbl_bills.getSelectedRow();
+        }
+        catch (Exception e){
+            
+            System.out.println(e.toString());
+        }
+        if(selectedRow >= 0){
+            String orderID;
+            DefaultTableModel tableBill = (DefaultTableModel)tbl_bills.getModel();
+            orderID = tableBill.getValueAt(selectedRow, 0).toString();
+
+            new form_order(orderID).setVisible(true);
+
+            //
+        }
+        else{
+            String strMess = "Vui lòng chọn đơn";
+            JOptionPane.showMessageDialog(null, strMess);
+            
+        }
+    }//GEN-LAST:event_btn_detailOrderActionPerformed
+
     /**
      * @param args the command line arguments
      */
@@ -329,24 +490,29 @@ public class mainForm extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(mainForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(form_main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(mainForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(form_main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(mainForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(form_main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(mainForm.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(form_main.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
+        //</editor-fold>
         //</editor-fold>
 
         /* Create and display the form */
-       new mainForm().setVisible(true);
+       new form_main().setVisible(true);
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btn_AddOrder;
     private javax.swing.JButton btn_check;
+    private javax.swing.JButton btn_close;
+    private javax.swing.JButton btn_detailOrder;
     private javax.swing.JButton btn_orderDetails;
+    private javax.swing.JButton btn_print;
+    private javax.swing.JButton btn_updateOrder;
     private org.jdesktop.swingx.JXDatePicker dateTimepicker;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -356,5 +522,12 @@ public class mainForm extends javax.swing.JFrame {
     private javax.swing.JLabel lbl_doanhSo;
     private javax.swing.JTable tbl_bills;
     // End of variables declaration//GEN-END:variables
+
+    private void updateTableFormat() {
+        String[] quantily = {"", "Mới", "Đang Giao", "Đã Giao", "Hủy"};
+        JComboBox comboCount = new JComboBox<String>(quantily);
+        TableColumn tblCol = tbl_bills.getColumnModel().getColumn(4);
+        tblCol.setCellEditor(new DefaultCellEditor(comboCount));
+    }
 
 }

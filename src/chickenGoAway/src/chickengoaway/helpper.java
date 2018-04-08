@@ -109,6 +109,20 @@ public class helpper {
    }
    
    /**
+    * update
+    */
+   public void executeUpdateData(String querry){
+       //executeUpdate
+       if(st == null)
+            createConnection();
+       
+        try {
+            st.executeUpdate(querry);
+        } catch (SQLException ex) {
+            Logger.getLogger(helpper.class.getName()).log(Level.SEVERE, null, ex);
+        }
+   }
+   /**
     * Close connection
     */
    public void closeConnection(){

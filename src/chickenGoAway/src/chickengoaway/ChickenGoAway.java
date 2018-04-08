@@ -21,7 +21,7 @@ public class ChickenGoAway {
         _helpper.createConnection();
         
         //Start Interface: main form
-        new mainForm().setVisible(true);
+        new form_main().setVisible(true);
         
     }
     
