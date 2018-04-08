@@ -62,7 +62,7 @@ public class form_order extends javax.swing.JFrame {
      * Update table format
      */
     private void updateTableOrders(){
-        String[] quantily = {"0", "1", "2", "3", "4"};
+        String[] quantily = {"","0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"};
         JComboBox comboCount = new JComboBox<String>(quantily);
         comboCount.addActionListener(new ActionListener() {
             @Override
@@ -105,13 +105,66 @@ public class form_order extends javax.swing.JFrame {
     }
     
     public form_order(String orderID) {
-        
-        initComponents();
+        //define variable:
         currentOrderID = orderID;
-        lbl_header.setText("Chỉnh sửa đơn hàng" + currentOrderID);
+        String strQuerryFood = "SELECT OrderDetails.orderId, OrderDetails.Count, foods.Name, foods.Prices "
+                + "FROM foods INNER JOIN OrderDetails ON foods.[ID] = OrderDetails.[foods] "
+                + "WHERE (((OrderDetails.orderId)=" + orderID + "));";
+        String strQuerryCustomer = "SELECT * FROM [order] WHERE (((order.OrderID)=" + orderID + "));" ;
         
+        ResultSet customerInfo = ChickenGoAway._helpper.executeQuerry(strQuerryCustomer);
+        ResultSet orderInfo = ChickenGoAway._helpper.executeQuerry(strQuerryFood);
+        
+        // Genarate form
+        initComponents();
         getFoods();
+        System.out.println("Update data");
         
+        //Update form
+        lbl_header.setText("Chỉnh sửa đơn hàng:   " + currentOrderID);
+        
+        try {
+            
+            int total,fee, foodFee, row;
+            String foodName, quantity, price, internalFood;
+            row = 0;
+            DefaultTableModel tableFoods = (DefaultTableModel)tbl_orderDetails.getModel();
+            // Load customize infomation
+            while (customerInfo.next()){
+                
+                total = Integer.valueOf(customerInfo.getString("Ship")) + Integer.valueOf(customerInfo.getString("Fee")) ;
+                fee = Integer.valueOf(customerInfo.getString("Ship"));
+                txt_Address.setText(customerInfo.getString("Address"));
+                txt_numberPhone.setText(customerInfo.getString("PhoneNumber"));
+                txt_shipFee.setText(fee +"");
+                txt_timeDeliverli.setText(customerInfo.getString("timeDelivery"));
+                lbl_totalFee.setText("" + total);   
+            }
+            // Load details bill
+            while (orderInfo.next()){
+                
+                foodName = orderInfo.getString("Name");
+                quantity = orderInfo.getString("Count");
+                price = orderInfo.getString("Prices");
+                foodFee = Integer.valueOf(quantity) * Integer.valueOf(price);
+                 // Update food on table:
+                 for(int interanlRow = 0; interanlRow < tableFoods.getRowCount(); interanlRow++){
+                     internalFood = tableFoods.getValueAt(interanlRow, 1) + "";
+                     if(internalFood == "")
+                         break;
+                     if(internalFood.equals(foodName)){
+                         tableFoods.setValueAt(quantity, interanlRow, 2);
+                         tableFoods.setValueAt(price, interanlRow, 4);
+                         break;
+                     }
+                 }
+                
+//                
+            }
+        System.out.println("Update data-----> Done");
+        } catch (SQLException ex) {
+            Logger.getLogger(form_print.class.getName()).log(Level.SEVERE, null, ex);
+        }
         updateTableOrders();
     }
     
@@ -398,6 +451,7 @@ public class form_order extends javax.swing.JFrame {
         shipper     = txt_shipper.getText();
         //if new: currentOrderID == "";
         if(currentOrderID.equals("")){
+            System.out.println("Create new one");
             orderID     = (new SimpleDateFormat("yyMMdd").format(new Date()));
             ResultSet rs = ChickenGoAway._helpper.executeQuerry("Select TOP 1 OrderID from order where dateOder = #" + dateOrder + "# ORDER BY OrderID DESC");
             try {
@@ -420,40 +474,68 @@ public class form_order extends javax.swing.JFrame {
             querry = "INSERT INTO [order] ( OrderID, dateOder, Address, PhoneNumber, timeDelivery, Fee, Ship, Shipper ) "
                 + "VALUES (" + orderID + ", ? ,  '"+ address + "', '" + phoneNumber + "', '" 
                     + timeDeliver + "', "+ fee + ", " + ship + ", '" + shipper + "');";
-           }
+            
+            //Get data for order details
+            String food, quantities;
+            int rows =  tbl_orderDetails.getRowCount();
+            ArrayList<String> strQuerrys = new ArrayList<>();
+
+            DefaultTableModel tableFoods = (DefaultTableModel)tbl_orderDetails.getModel();
+            for(int row = 0; row < rows-1; row++){
+
+                quantities = tableFoods.getValueAt(row, 2).toString();
+                if(quantities==null )
+                    break;
+                if(Integer.valueOf(quantities) > 0){
+                    food = tableFoods.getValueAt(row, 1).toString();
+                    strQuerrys.add("INSERT INTO OrderDetails ( orderId, foods, count) VALUES (" + orderID 
+                            + ", '"+ dicFoods.get(food) + "', " + quantities + ");");
+                    System.out.println(row);
+                }
+            }
+ 
+            // show information
+             String strMess = "Thêm đơn hàng với ID: " + orderID + "\n Tổng giá trị:              " + lbl_totalFee.getText();
+             JOptionPane.showMessageDialog(null, strMess);
+
+            //push data to database
+            ChickenGoAway._helpper.insertDataIntoOrder(querry, dateOrder);
+            ChickenGoAway._helpper.insertDataToOrrderDetails(strQuerrys);
+       
+        
+        }
         else{
-            querry = "";
+            System.out.println("Update order: " + currentOrderID);
             orderID = currentOrderID;
+            //Update customize
+            querry = "UPDATE order SET Address='" + address + "', PhoneNumber ='" + phoneNumber  + "', timeDelivery ='" + timeDeliver  + "', Fee ='" + fee + "', Ship ='" + ship 
+                    + "' WHERE OrderID LIKE '"+ orderID + "'" ;
+            ChickenGoAway._helpper.executeUpdateData(querry);
+            
+            //Update table
+            //Get data for order details
+            String food, quantities, updateQuerry;
+            int rows =  tbl_orderDetails.getRowCount();
+            DefaultTableModel tableFoods = (DefaultTableModel)tbl_orderDetails.getModel();
+            for(int row = 0; row < rows-1; row++){
+
+                quantities = (tableFoods.getValueAt(row, 2).toString()) + "";
+                food = dicFoods.get(tableFoods.getValueAt(row, 1).toString());
+                if(quantities.equals("") )
+                    break;
+                if(Integer.valueOf(quantities) > 0){
+                    food = tableFoods.getValueAt(row, 1).toString();
+                    querry = "UPDATE OrderDetails SET count='" + quantities
+                    + "' WHERE OrderID LIKE '"+ orderID + "' AND foods LIKE '" + food + "'" ;
+                    ChickenGoAway._helpper.executeUpdateData(querry);
+                    break;
+                }
+            }
+            
         }
         
 
-        //Get data for order details
-        String food, quantities;
-        int rows =  tbl_orderDetails.getRowCount();
-        ArrayList<String> strQuerrys = new ArrayList<>();
-       
-        DefaultTableModel tableFoods = (DefaultTableModel)tbl_orderDetails.getModel();
-       
-        for(int row = 0; row < rows-1; row++){
-            
-            quantities = tableFoods.getValueAt(row, 2).toString();
-            if(quantities==null )
-                break;
-            if(Integer.valueOf(quantities) > 0){
-                food = tableFoods.getValueAt(row, 1).toString();
-                strQuerrys.add("INSERT INTO OrderDetails ( orderId, foods, count) VALUES (" + orderID 
-                        + ", '"+ dicFoods.get(food) + "', " + quantities + ");");
-                System.out.println(row);
-            }
-        }
- 
-        // show information
-         String strMess = "Thêm đơn hàng với ID: " + orderID + "\n Tổng giá trị:              " + lbl_totalFee.getText();
-         JOptionPane.showMessageDialog(null, strMess);
-
-        //push data to database
-        ChickenGoAway._helpper.insertDataIntoOrder(querry, dateOrder);
-        ChickenGoAway._helpper.insertDataToOrrderDetails(strQuerrys);
+        
         this.dispose();
         
     }//GEN-LAST:event_btn_OKActionPerformed
@@ -546,6 +628,5 @@ public class form_order extends javax.swing.JFrame {
     private int currentShipFee = 0;
     private  Map<String, String> dicFoods = new HashMap<String, String>(); 
     private String currentOrderID = "";
-    
     
 }

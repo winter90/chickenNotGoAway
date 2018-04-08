@@ -167,6 +167,7 @@ public class form_main extends javax.swing.JFrame {
         btn_orderDetails.setBackground(new java.awt.Color(153, 153, 255));
         btn_orderDetails.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         btn_orderDetails.setText("Kiểm tra đơn hàng");
+        btn_orderDetails.setEnabled(false);
         btn_orderDetails.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_orderDetailsActionPerformed(evt);
@@ -176,6 +177,7 @@ public class form_main extends javax.swing.JFrame {
         btn_check.setBackground(new java.awt.Color(204, 204, 255));
         btn_check.setFont(new java.awt.Font("Times New Roman", 0, 18)); // NOI18N
         btn_check.setText("Kiểm tra doanh thu");
+        btn_check.setEnabled(false);
         btn_check.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btn_checkActionPerformed(evt);
@@ -442,10 +444,7 @@ public class form_main extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, strMess);
             
         }   
-        
-        
-        
-        
+         
     }//GEN-LAST:event_btn_printActionPerformed
 
     private void btn_detailOrderActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btn_detailOrderActionPerformed
